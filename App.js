@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Dimensions } from 'react-native';
+
+import Swiper from 'react-native-deck-swiper';
 
 import Card from './components/Card';
 import { Header } from './components/Header';
+import { ActionButton } from './components/ActionButton';
 
 import { API_URL } from './secret.js';
 
 console.ignoredYellowBox = ['react-native BugReporting extraData:'];
+
+const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get('window').width;
 
 export default class App extends Component {
   state = {
@@ -14,60 +20,75 @@ export default class App extends Component {
   }
 
   async componentDidMount() {
-    console.log('DID MOUNT')
     const response = await fetch(`${API_URL}/hot-singles`, {
       method: 'GET',
     });
 
     const responseData = await response.json();
     
-    this.setState({ profiles: responseData }, () => {
-      console.log('STATE', Object.keys(this.state))
-    })
-  }
-
-  renderCards = () => {
-    const { profiles } = this.state;
-    console.log(profiles.length)
-    const cards = [];
-
-    if (profiles.length) {
-      for (let i = 0; i < 3; i++) {
-        // console.log(profiles, i)
-        const profile = profiles[i];
-        // console.log(profile)
-  
-        cards.push(
-          <View key={`${i}${profile.name}`} style={[styles.cardContainerStyle, styles[`card${i}`]]}>
-            <Card profile={profile} />
-          </View>
-        )
-      }
-    }
-
-    // profiles.map((profile, i) => {
-
-    // })
-
-    return cards;
+    this.setState({ profiles: responseData })
   }
 
   render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Header />
+    const { profiles } = this.state;
 
-        <View style={styles.contentContainerStyle}>
-          <View style={styles.cardsContainerStyle}>
-            {this.renderCards()}
+    if (profiles.length) {
+      return (
+        <SafeAreaView style={styles.container}>
+          <Header />
+  
+          <View style={styles.contentContainerStyle}>
+            <Swiper
+              cards={profiles}
+              renderCard={(card) => {
+                return (
+                  <View>
+                    <Card profile={card} />
+                  </View>
+                )
+              }}
+              onSwiped={(cardIndex) => {console.log(cardIndex)}}
+              onSwipedAll={() => {console.log('onSwipedAll')}}
+              cardIndex={0}
+              backgroundColor={'#fff'}
+              useViewOverflow={false}
+              stackSize= {3}>
+            </Swiper>
+
+            <View style={styles.actionButtonsContainer}>
+                <ActionButton 
+                  style={styles.leftOuterButtonStyle}
+                  iconName='undo'
+                  iconType='font-awesome'
+                  iconColor='orange' />
+
+                <ActionButton 
+                  style={styles.leftInnerButtonStyle} 
+                  iconName='times'
+                  iconType='font-awesome'
+                  iconColor='red' 
+                  bigButton />
+
+                <ActionButton 
+                  style={styles.rightInnerButtonStyle}
+                  iconName='heart'
+                  iconType='font-awesome'
+                  iconColor='green'  
+                  bigButton />
+
+                <ActionButton 
+                  style={styles.rightOuterButtonStyle}
+                  iconName='star'
+                  iconType='font-awesome' 
+                  iconColor='blue' />
+            </View>
+
           </View>
-
-          <View style={styles.actionButtonsContainer}>
-
-          </View>
-        </View>
-      </SafeAreaView>
-    );
+        </SafeAreaView>
+      );
+    } else {
+      return <View><Text>Loading</Text></View>
+    }
   }
 }
 
@@ -79,40 +100,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   contentContainerStyle: {
-    width: '100%',
-    height: '100%',
-    paddingHorizontal: 10
-  },
-  cardsContainerStyle: {
-    flex: 1,
-
-    width: '100%',
-    height: '100%'
-  },
-  cardContainerStyle: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    // height: '100%'
-  },
-  card0: {
-    position: 'absolute',
-    top: 0,
-    zIndex: 3
-  },
-  card1: {
-    position: 'absolute',
-    top: 3,
-    zIndex: 2
-  },
-  card2: {
-    position: 'absolute',
-    top: 6,
-    zIndex: 1
+    height: '100%',
+    paddingHorizontal: 10,
+    // paddingBottom: 15,
   },
   actionButtonsContainer: {
     height: 80,
-    width: '100%'
+    width: '100%',
+    height: '20%',
+    // backgroundColor: 'red',
+    position: 'absolute',
+    bottom: 75
+  },
+  leftOuterButtonStyle: {
+    position: 'absolute',
+    top: 10,
+    left: 22
+  },
+  leftInnerButtonStyle: {
+    position: 'absolute',
+    top: 13,
+    left: 90
+  },
+  rightInnerButtonStyle: {
+    position: 'absolute',
+    top: 13,
+    right: 90
+  },
+  rightOuterButtonStyle: {
+    position: 'absolute',
+    top: 10,
+    right: 22
   }
 });

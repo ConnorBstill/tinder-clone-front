@@ -5,14 +5,15 @@ class Card extends Component {
 
   render() {
     const { profile } = this.props;
-
+      console.log(Object.keys(profile), profile.name)
+   
     return (
       <View style={styles.containerStyle}>
         <Image source={{ uri: `data:image/png;base64,${profile.profilePicture}` }} style={styles.imageStyle} />
 
         <View style={styles.infoContainerStyle}>
           <View style={styles.nameContainerStyle}>
-            <Text style={styles.textStyle}>{profile.name},</Text>
+            <Text style={styles.textStyle}>{profile.name}, </Text>
             <Text style={styles.textStyle}>{profile.age}</Text>
           </View>
           
